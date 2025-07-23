@@ -1,0 +1,64 @@
+{
+  "name": "pdf-processor",
+  "version": "1.0.0",
+  "description": "Electron app for OCR processing PDFs with intelligent text correction",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "jest",
+    "build": "electron-builder build",
+    "dist": "electron-builder",
+    "pack": "electron-builder --dir"
+  },
+  "keywords": [
+    "electron",
+    "ocr",
+    "pdf",
+    "tesseract",
+    "markdown"
+  ],
+  "author": "David",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "electron": "^33.0.2",
+    "electron-builder": "^25.1.8",
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "compromise": "^14.14.0",
+    "dictionary-en": "^3.2.0",
+    "electron-store": "^8.2.0",
+    "fs-extra": "^11.2.0",
+    "natural": "^8.0.1",
+    "nspell": "^2.1.5",
+    "pdf-parse": "^1.1.1",
+    "pdf2pic": "^3.2.0",
+    "tesseract.js": "^5.1.1"
+  },
+  "build": {
+    "appId": "com.davidprojects.pdfprocessor",
+    "productName": "PDF Processor",
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Office",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

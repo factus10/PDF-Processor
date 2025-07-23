@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+  <title>PDF Processor</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/components.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="logo-section">
+          <img src="assets/icon.png" alt="PDF Processor" class="app-icon">
+          <h1 class="app-title">PDF Processor</h1>
+        </div>
+        <div class="header-actions">
+          <button id="settingsBtn" class="btn btn-secondary" title="Settings">
+            <span class="icon">⚙️</span>
+          </button>
+          <button id="helpBtn" class="btn btn-secondary" title="Help">
+            <span class="icon">❓</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- URL Input Section -->
+      <section class="url-input-section">
+        <div class="section-header">
+          <h2>Add PDF URLs</h2>
+          <button id="clearAllBtn" class="btn btn-outline">Clear All</button>
+        </div>
+        
+        <div class="url-input-container">
+          <div class="input-group">
+            <input 
+              type="url" 
+              id="urlInput" 
+              placeholder="Enter PDF URL (e.g., https://example.com/document.pdf)"
+              class="url-input"
+            >
+            <button id="addUrlBtn" class="btn btn-primary">Add URL</button>
+          </div>
+          
+          <div class="batch-input-section">
+            <button id="batchInputBtn" class="btn btn-outline">
+              <span class="icon">📝</span>
+              Batch Input
+            </button>
+            <input 
+              type="file" 
+              id="fileInput" 
+              accept=".txt,.csv" 
+              style="display: none;"
+            >
+            <button id="loadFileBtn" class="btn btn-outline">
+              <span class="icon">📁</span>
+              Load from File
+            </button>
+          </div>
+        </div>
+
+        <!-- URL List -->
+        <div class="url-list-container">
+          <div id="urlList" class="url-list"></div>
+        </div>
+      </section>
+
+      <!-- Processing Controls -->
+      <section class="controls-section">
+        <div class="processing-controls">
+          <button id="startBtn" class="btn btn-success btn-large" disabled>
+            <span class="icon">🚀</span>
+            Start Processing
+          </button>
+          <button id="pauseBtn" class="btn btn-warning" style="display: none;">
+            <span class="icon">⏸️</span>
+            Pause
+          </button>
+          <button id="stopBtn" class="btn btn-danger" style="display: none;">
+            <span class="icon">⏹️</span>
+            Stop
+          </button>
+        </div>
+        
+        <div class="output-settings">
+          <label for="outputPath">Output Folder:</label>
+          <div class="input-group">
+            <input type="text" id="outputPath" class="path-input" readonly>
+            <button id="browseOutputBtn" class="btn btn-secondary">Browse</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Processing Status -->
+      <section class="status-section">
+        <div class="section-header">
+          <h2>Processing Status</h2>
+          <div class="overall-progress">
+            <span id="overallProgressText">0/0 completed</span>
+            <div class="progress-bar">
+              <div id="overallProgressBar" class="progress-fill"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div id="processingList" class="processing-list"></div>
+      </section>
+
+      <!-- Live Preview -->
+      <section class="preview-section">
+        <div class="section-header">
+          <h2>Live Preview</h2>
+          <div class="preview-controls">
+            <button id="previewToggleBtn" class="btn btn-outline">
+              <span class="icon">👁️</span>
+              Show Preview
+            </button>
+            <select id="previewSelect" class="preview-select">
+              <option value="">Select a processing job...</option>
+            </select>
+          </div>
+        </div>
+        
+        <div id="previewContainer" class="preview-container" style="display: none;">
+          <div class="preview-tabs">
+            <button class="tab-btn active" data-tab="original">Original Text</button>
+            <button class="tab-btn" data-tab="corrected">Corrected Text</button>
+            <button class="tab-btn" data-tab="markdown">Markdown Output</button>
+          </div>
+          
+          <div class="preview-content">
+            <div id="originalTab" class="tab-content active">
+              <textarea id="originalText" readonly></textarea>
+            </div>
+            <div id="correctedTab" class="tab-content">
+              <textarea id="correctedText" readonly></textarea>
+            </div>
+            <div id="markdownTab" class="tab-content">
+              <textarea id="markdownText" readonly></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Settings</h3>
+          <button class="modal-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="settings-tabs">
+            <button class="settings-tab-btn active" data-tab="ocr">OCR Settings</button>
+            <button class="settings-tab-btn" data-tab="correction">Text Correction</button>
+            <button class="settings-tab-btn" data-tab="output">Output Format</button>
+          </div>
+          
+          <div class="settings-content">
+            <!-- OCR Settings -->
+            <div id="ocrSettings" class="settings-tab-content active">
+              <div class="setting-group">
+                <label for="ocrLanguage">OCR Language:</label>
+                <select id="ocrLanguage">
+                  <option value="eng">English</option>
+                  <option value="spa">Spanish</option>
+                  <option value="fra">French</option>
+                  <option value="deu">German</option>
+                </select>
+              </div>
+              
+              <div class="setting-group">
+                <label for="confidenceThreshold">Confidence Threshold:</label>
+                <input type="range" id="confidenceThreshold" min="0" max="100" value="60">
+                <span class="range-value">60%</span>
+              </div>
+              
+              <div class="setting-group">
+                <label>
+                  <input type="checkbox" id="preserveLayout">
+                  Preserve Original Layout
+                </label>
+              </div>
+            </div>
+            
+            <!-- Text Correction Settings -->
+            <div id="correctionSettings" class="settings-tab-content">
+              <div class="setting-group">
+                <label>
+                  <input type="checkbox" id="enableSpellCheck" checked>
+                  Enable Spell Checking
+                </label>
+              </div>
+              
+              <div class="setting-group">
+                <label>
+                  <input type="checkbox" id="aggressiveCorrection">
+                  Aggressive Error Correction
+                </label>
+              </div>
+              
+              <div class="setting-group">
+                <label for="customDictionary">Custom Dictionary (one word per line):</label>
+                <textarea id="customDictionary" rows="5" placeholder="Enter custom words..."></textarea>
+              </div>
+            </div>
+            
+            <!-- Output Settings -->
+            <div id="outputSettings" class="settings-tab-content">
+              <div class="setting-group">
+                <label for="outputFormat">Output Format:</label>
+                <select id="outputFormat">
+                  <option value="markdown">Markdown (.md)</option>
+                  <option value="txt">Plain Text (.txt)</option>
+                  <option value="html">HTML (.html)</option>
+                </select>
+              </div>
+              
+              <div class="setting-group">
+                <label>
+                  <input type="checkbox" id="includeMetadata" checked>
+                  Include Processing Metadata
+                </label>
+              </div>
+              
+              <div class="setting-group">
+                <label>
+                  <input type="checkbox" id="preserveFormatting" checked>
+                  Preserve Text Formatting
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button id="saveSettingsBtn" class="btn btn-primary">Save Settings</button>
+          <button id="cancelSettingsBtn" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Batch Input Modal -->
+    <div id="batchModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Batch URL Input</h3>
+          <button class="modal-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <p>Enter multiple PDF URLs, one per line:</p>
+          <textarea id="batchUrlInput" rows="10" placeholder="https://example.com/doc1.pdf&#10;https://example.com/doc2.pdf&#10;https://example.com/doc3.pdf"></textarea>
+        </div>
+        
+        <div class="modal-footer">
+          <button id="addBatchUrlsBtn" class="btn btn-primary">Add URLs</button>
+          <button id="cancelBatchBtn" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <footer class="status-bar">
+    <div class="status-left">
+      <span id="statusText">Ready</span>
+    </div>
+    <div class="status-right">
+      <span id="memoryUsage">Memory: 0 MB</span>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/components/url-input.js"></script>
+  <script src="js/components/progress-view.js"></script>
+  <script src="js/components/text-preview.js"></script>
+  <script src="js/components/settings-modal.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
